@@ -1,0 +1,262 @@
+lifeboost/
+ ├─ lib/
+ │   ├─ main.dart
+ │   ├─ screens/
+ │   │    ├─ home_screen.dart
+ │   │    ├─ challenge_screen.dart
+ │   │    ├─ game_screen.dart
+ │   │    ├─ mood_screen.dart
+ │   │    ├─ quiz_screen.dart
+ │   │    └─ profile_screen.dart
+ │   ├─ widgets/
+ │   │    └─ home_card.dart
+ │   └─ data/
+ │        └─ quiz_data.dart
+ ├─ pubspec.yamlimport 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
+
+void main() => runApp(LifeBoostApp());
+
+class LifeBoostApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'LifeBoost 🚀',
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      home: HomeScreen(),
+    );
+  }
+}import 'package:flutter/material.dart';
+import '../widgets/home_card.dart';
+import 'challenge_screen.dart';
+import 'game_screen.dart';
+import 'mood_screen.dart';
+import 'quiz_screen.dart';
+
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("LifeBoost 🚀")),
+      body: GridView.count(
+        crossAxisCount: 2,
+        padding: EdgeInsets.all(16),
+        children: [
+          HomeCard(title: "Challenge", icon: Icons.star, screen: ChallengeScreen()),
+          HomeCard(title: "Game", icon: Icons.videogame_asset, screen: GameScreen()),
+          HomeCard(title: "Mood", icon: Icons.mood, screen: MoodScreen()),
+          HomeCard(title: "Quiz", icon: Icons.quiz, screen: QuizScreen()),
+        ],
+      ),
+    );
+  }
+}import 'package:flutter/material.dart';
+
+class HomeCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Widget screen;
+
+  const HomeCard({required this.title, required this.icon, required this.screen});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => screen)),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 50, color: Colors.deepPurple),
+              SizedBox(height: 8),
+              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}import 'package:flutter/material.dart';
+
+class ChallengeScreen extends StatefulWidget {
+  @override
+  _ChallengeScreenState createState() => _ChallengeScreenState();
+}
+
+class _ChallengeScreenState extends State<ChallengeScreen> {
+  List<String> challenges = [
+    "Drink 2 glasses of water 💧",
+    "Read 5 pages 📚",
+    "Take a 10-minute walk 🚶‍♂️",
+    "Write one positive thought ✨",
+  ];
+  late String todayChallenge;
+
+  @override
+  void initState() {
+    super.initState();
+    todayChallenge = challenges[DateTime.now().day % challenges.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("ChallengeMe")),
+      body: Center(
+        child: Card(
+          margin: EdgeInsets.all(20),
+          elevation: 8,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Today's Challenge", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                SizedBox(height: 10),
+                Text(todayChallenge, style: TextStyle(fontSize: 20)),
+                SizedBox(height: 20),
+                ElevatedButton(onPressed: () {}, child: Text("Mark Complete ✅"))
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}import 'package:flutter/material.dart';
+
+class GameScreen extends StatefulWidget {
+  @override
+  _GameScreenState createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  int score = 0;
+  bool playing = false;
+
+  void startGame() {
+    setState(() {
+      score = 0;
+      playing = true;
+    });
+    Future.delayed(Duration(seconds: 30), () {
+      setState(() => playing = false);
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("Time's Up!"),
+          content: Text("Your score: $score"),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text("OK"))],
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Tap Hero")),
+      body: Center(
+        child: playing
+            ? GestureDetector(
+                onTap: () => setState(() => score++),
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.purpleAccent,
+                  child: Text('$score', style: TextStyle(fontSize: 40, color: Colors.white)),
+                ),
+              )
+            : ElevatedButton(onPressed: startGame, child: Text("Start 30s Game")),
+      ),
+    );
+  }
+}import 'package:flutter/material.dart';
+
+class MoodScreen extends StatefulWidget {
+  @override
+  _MoodScreenState createState() => _MoodScreenState();
+}
+
+class _MoodScreenState extends State<MoodScreen> {
+  String mood = "😊";
+  final List<String> moods = ["😊", "😐", "😢", "😡", "😍"];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Mood Tracker")),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("How are you feeling today?", style: TextStyle(fontSize: 20)),
+          SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            children: moods
+                .map((m) => IconButton(
+                      icon: Text(m, style: TextStyle(fontSize: 40)),
+                      onPressed: () => setState(() => mood = m),
+                    ))
+                .toList(),
+          ),
+          SizedBox(height: 20),
+          Text("Today's Mood: $mood", style: TextStyle(fontSize: 24)),
+        ],
+      ),
+    );
+  }
+}import 'package:flutter/material.dart';
+import '../data/quiz_data.dart';
+
+class QuizScreen extends StatefulWidget {
+  @override
+  _QuizScreenState createState() => _QuizScreenState();
+}
+
+class _QuizScreenState extends State<QuizScreen> {
+  int current = 0;
+  int score = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    var q = quizData[current];
+    return Scaffold(
+      appBar: AppBar(title: Text("Quiz It")),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(q["q"], style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            ...q["options"].map<Widget>((o) => ElevatedButton(
+                  onPressed: () {
+                    if (o == q["a"]) score++;
+                    if (current < quizData.length - 1) {
+                      setState(() => current++);
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text("Quiz Over!"),
+                          content: Text("Your Score: $score"),
+                          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text("OK"))],
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(o),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+}const quizData = [
+  {"q": "Flutter is made by?", "a": "Google", "options": ["Google", "Apple", "Microsoft"]},
+  {"q": "Which language is used in Flutter?", "a": "Dart", "options": ["Dart", "Kotlin", "Swift"]},
+  {"q": "How many continents are there?", "a": "7", "options": ["5", "6", "7"]},
+];
